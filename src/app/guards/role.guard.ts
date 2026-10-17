@@ -12,6 +12,8 @@ export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   const router = inject(Router);
 
   const requiredRoles = route.data?.['roles'] as string[] | undefined;
+  console.log('>>> roleGuard evaluando. Roles requeridos:', requiredRoles);
+  console.log('>>> ¿Tiene el rol?', authService.hasRole(...(requiredRoles || [])));
 
   if (!requiredRoles || requiredRoles.length === 0) {
     return true;
@@ -21,7 +23,7 @@ export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
     return true;
   }
 
-  // User is logged in but doesn't have the required role
+  console.warn('>>> roleGuard: Acceso denegado, redirigiendo...');
   router.navigate(['/']);
   return false;
 };

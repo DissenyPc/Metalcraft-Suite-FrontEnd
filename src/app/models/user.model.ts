@@ -2,9 +2,13 @@
  * Represents the authenticated user in the application.
  */
 export interface User {
-  username: string;
+  id: number;
+  username: string; // <-- Cambiado de name? a username
   email: string;
-  role: 'ADMIN' | 'EMPLOYEE';
+  role: 'ADMIN' | 'EMPLOYEE'; // <-- Tipado estricto en lugar de un string genérico
+  active: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 /**

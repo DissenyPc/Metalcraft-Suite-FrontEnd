@@ -8,6 +8,13 @@ import { User, LoginRequest, RegisterRequest, AuthResponse } from '../models/use
 const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'auth_user';
 
+
+
+/**
+ * Tipo exclusivo para la sesión basado en los campos reales que devuelve el login/register.
+ */
+export type AuthenticatedUser = Pick<User, 'username' | 'email' | 'role'>;
+
 /**
  * Central authentication service.
  * Manages JWT tokens, user state, login/register/logout operations.
@@ -17,7 +24,7 @@ const USER_KEY = 'auth_user';
 })
 export class AuthService {
 
-  private currentUserSubject = new BehaviorSubject<User | null>(this.loadUserFromStorage());
+  private currentUserSubject = new BehaviorSubject<AuthenticatedUser | null>(this.loadUserFromStorage());
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(
@@ -28,7 +35,7 @@ export class AuthService {
   /**
    * Returns the current user synchronously (snapshot).
    */
-  get currentUser(): User | null {
+  get currentUser(): AuthenticatedUser | null {
     return this.currentUserSubject.value;
   }
 
@@ -99,28 +106,28 @@ export class AuthService {
   // ── Private helpers ──
 
   private handleAuthResponse(response: AuthResponse): void {
-    localStorage.setItem(TOKEN_KEY, response.token);
+  localStorage.setItem(TOKEN_KEY, response.token);
 
-    const user: User = {
-      username: response.username,
-      email: response.email,
-      role: response.role
-    };
+  const user: AuthenticatedUser = {
+    username: response.username,
+    email: response.email,
+    role: response.role
+  };
 
-    localStorage.setItem(USER_KEY, JSON.stringify(user));
-    this.currentUserSubject.next(user);
-  }
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+  this.currentUserSubject.next(user);
+}
 
-  private loadUserFromStorage(): User | null {
-    try {
-      const userData = localStorage.getItem(USER_KEY);
-      if (userData) {
-        return JSON.parse(userData) as User;
-      }
-    } catch {
-      localStorage.removeItem(USER_KEY);
-      localStorage.removeItem(TOKEN_KEY);
+  private loadUserFromStorage(): AuthenticatedUser | null {
+  try {
+    const userData = localStorage.getItem(USER_KEY);
+    if (userData) {
+      return JSON.parse(userData) as AuthenticatedUser;
     }
-    return null;
+  } catch {
+    localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(TOKEN_KEY);
   }
+  return null;
+}
 }

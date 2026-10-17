@@ -195,6 +195,7 @@ export class SidebarComponent {
     { label: 'Artículos de Reventa', icon: 'bi-cart-check-fill', route: '/resale-items' },
     { label: 'Inventario y Tarifas', icon: 'bi-boxes', route: '/inventory', adminOnly: true },
     { label: 'Clientes', icon: 'bi-people-fill', route: '/clients', adminOnly: true },
+    { label: 'Usuarios', icon: 'bi-people-fill', route: '/users', adminOnly: true }
   ];
 
   constructor(private authService: AuthService) {}

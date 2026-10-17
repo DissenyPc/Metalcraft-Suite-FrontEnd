@@ -1,0 +1,26 @@
+<div class="admin-container">
+  <h2>User Management</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Active</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of users">
+        <td>{{ user.username }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.role }}</td>
+        <td>{{ user.active ? 'Yes' : 'No' }}</td>
+        <td>
+          <button (click)="updateUserRole(user.id, 'ADMIN')">Make Admin</button>
+          <button (click)="updateUserRole(user.id, 'EMPLOYEE')">Make Employee</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

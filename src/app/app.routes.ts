@@ -7,6 +7,7 @@ import { SpecialProductsComponent } from './pages/special-products/special-produ
 import { ResaleItemsComponent } from './pages/resale-items/resale-items.component';
 import { InventoryDashboardComponent } from './pages/inventory/inventory-dashboard.component';
 import { ClientManagementComponent } from './pages/clients/client-management.component';
+import { AdminComponent } from './admin/admin.component';
 import { LoginComponent } from './pages/auth/login/login.component';
 import { RegisterComponent } from './pages/auth/register/register.component';
 import { authGuard } from './guards/auth.guard';
@@ -27,6 +28,12 @@ export const routes: Routes = [
   { path: 'resale-items', component: ResaleItemsComponent, canActivate: [authGuard] },
 
   // ── ADMIN-only Routes ──
+  {
+    path: 'users',
+    component: AdminComponent,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ADMIN'] }
+  },
   {
     path: 'inventory',
     component: InventoryDashboardComponent,
