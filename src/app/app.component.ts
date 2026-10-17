@@ -3,23 +3,30 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from './layout/sidebar/sidebar.component';
 import { HeaderComponent } from './layout/header/header.component';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [CommonModule, RouterOutlet, SidebarComponent, HeaderComponent],
   template: `
-    <div class="app-layout">
-      <app-sidebar></app-sidebar>
-      <div class="main-wrapper">
-        <app-header>
-          <span pageTitle>Carpintería Metálica & Cerrajería</span>
-        </app-header>
-        <main class="content-area">
-          <router-outlet></router-outlet>
-        </main>
+    <!-- Authenticated Layout: sidebar + header + content -->
+    @if (authService.isLoggedIn) {
+      <div class="app-layout">
+        <app-sidebar></app-sidebar>
+        <div class="main-wrapper">
+          <app-header>
+            <span pageTitle>Carpintería Metálica & Cerrajería</span>
+          </app-header>
+          <main class="content-area">
+            <router-outlet></router-outlet>
+          </main>
+        </div>
       </div>
-    </div>
+    } @else {
+      <!-- Unauthenticated: render just the route (login/register pages) -->
+      <router-outlet></router-outlet>
+    }
   `,
   styles: [`
     .app-layout {
@@ -50,4 +57,6 @@ import { HeaderComponent } from './layout/header/header.component';
 })
 export class AppComponent {
   title = 'Carpintería Metálica & Cerrajería';
+
+  constructor(public authService: AuthService) {}
 }

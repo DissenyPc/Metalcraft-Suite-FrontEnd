@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 interface NavItem {
   label: string;
   icon: string;
   route: string;
+  adminOnly?: boolean;
   children?: NavItem[];
 }
 
@@ -29,7 +31,7 @@ interface NavItem {
       <!-- Navigation -->
       <nav class="sidebar-nav">
         <ul class="nav-list">
-          @for (item of navItems; track item.route) {
+          @for (item of visibleNavItems; track item.route) {
             <li class="nav-item">
               <a [routerLink]="item.route"
                  routerLinkActive="active"
@@ -38,6 +40,11 @@ interface NavItem {
                  [title]="isCollapsed ? item.label : ''">
                 <i class="bi {{item.icon}}"></i>
                 <span class="nav-label" *ngIf="!isCollapsed">{{ item.label }}</span>
+                @if (item.adminOnly && !isCollapsed) {
+                  <span class="admin-badge">
+                    <i class="bi bi-shield-fill-check"></i>
+                  </span>
+                }
               </a>
             </li>
           }
@@ -153,6 +160,13 @@ interface NavItem {
       color: #38bdf8;
     }
 
+    .admin-badge {
+      margin-left: auto;
+      font-size: 0.7rem;
+      color: #f59e0b;
+      opacity: 0.7;
+    }
+
     .sidebar-toggle {
       padding: 0.85rem;
       border: none;
@@ -179,9 +193,22 @@ export class SidebarComponent {
     { label: 'Presupuestos', icon: 'bi-receipt-cutoff', route: '/budgets' },
     { label: 'Productos Especiales', icon: 'bi-grid-3x3', route: '/special-products' },
     { label: 'Artículos de Reventa', icon: 'bi-cart-check-fill', route: '/resale-items' },
-    { label: 'Inventario y Tarifas', icon: 'bi-boxes', route: '/inventory' },
-    { label: 'Clientes', icon: 'bi-people-fill', route: '/clients' },
+    { label: 'Inventario y Tarifas', icon: 'bi-boxes', route: '/inventory', adminOnly: true },
+    { label: 'Clientes', icon: 'bi-people-fill', route: '/clients', adminOnly: true },
   ];
+
+  constructor(private authService: AuthService) {}
+
+  /**
+   * Returns only the nav items visible to the current user's role.
+   * ADMIN sees everything, EMPLOYEE sees items without adminOnly flag.
+   */
+  get visibleNavItems(): NavItem[] {
+    if (this.authService.isAdmin) {
+      return this.navItems;
+    }
+    return this.navItems.filter(item => !item.adminOnly);
+  }
 
   toggleSidebar(): void {
     this.isCollapsed = !this.isCollapsed;
