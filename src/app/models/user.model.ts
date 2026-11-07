@@ -31,9 +31,16 @@ export interface RegisterRequest {
 /**
  * DTO received from login/register endpoints.
  */
-export interface AuthResponse {
+/**export interface AuthResponse {
   token: string;
   username: string;
   email: string;
   role: 'ADMIN' | 'EMPLOYEE';
+}*/
+
+export interface AuthResponse {
+  token: string;
+  refreshToken?: string; // Campos opcionales según el backend
+  username: string;
+  role: 'ADMIN' | 'EMPLOYEE'; 
 }

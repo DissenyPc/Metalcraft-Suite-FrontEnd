@@ -6,14 +6,14 @@ import { API_CONFIG } from './api.config';
 import { User, LoginRequest, RegisterRequest, AuthResponse } from '../models/user.model';
 
 const TOKEN_KEY = 'auth_token';
+const REFRESH_TOKEN_KEY = 'refresh_token'; // <-- 1. Añadida la clave del Refresh Token
 const USER_KEY = 'auth_user';
-
-
 
 /**
  * Tipo exclusivo para la sesión basado en los campos reales que devuelve el login/register.
  */
 export type AuthenticatedUser = Pick<User, 'username' | 'email' | 'role'>;
+
 
 /**
  * Central authentication service.
@@ -68,6 +68,27 @@ export class AuthService {
   }
 
   /**
+   * Returns the stored Refresh Token.
+   */
+  getRefreshToken(): string | null { // <-- 2. Nuevo método
+    return localStorage.getItem(REFRESH_TOKEN_KEY);
+  }
+
+  /**
+   * Updates only the Access Token in storage.
+   */
+  updateAccessToken(newToken: string): void { // <-- 3. Nuevo método
+    localStorage.setItem(TOKEN_KEY, newToken);
+  }
+
+  /**
+   * Calls the backend refresh endpoint to get a new Access Token.
+   */
+  refreshToken(body: { refreshToken: string }): Observable<any> { // <-- 4. Nuevo método
+    return this.http.post<any>(`${API_CONFIG.baseUrl}/auth/refresh`, body);
+  }
+
+  /**
    * Authenticates user with username and password.
    */
   login(request: LoginRequest): Observable<AuthResponse> {
@@ -90,6 +111,7 @@ export class AuthService {
    */
   logout(): void {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY); // <-- 5. Limpiar refresh token al salir
     localStorage.removeItem(USER_KEY);
     this.currentUserSubject.next(null);
     this.router.navigate(['/login']);
@@ -105,29 +127,36 @@ export class AuthService {
 
   // ── Private helpers ──
 
-  private handleAuthResponse(response: AuthResponse): void {
-  localStorage.setItem(TOKEN_KEY, response.token);
+ private handleAuthResponse(response: AuthResponse): void {
+    localStorage.setItem(TOKEN_KEY, response.token);
+    
+    // Acceso directo al refreshToken usando TypeScript strict types
+    const hasRefreshToken = 'refreshToken' in response;
+    if (hasRefreshToken) {
+      localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken!); 
+    }
 
-  const user: AuthenticatedUser = {
-    username: response.username,
-    email: response.email,
-    role: response.role
-  };
+    const user: AuthenticatedUser = {
+      username: response.username,
+      role: response.role,
+      email: ''
+    };
 
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
-  this.currentUserSubject.next(user);
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
+    this.currentUserSubject.next(user);
 }
 
   private loadUserFromStorage(): AuthenticatedUser | null {
-  try {
-    const userData = localStorage.getItem(USER_KEY);
-    if (userData) {
-      return JSON.parse(userData) as AuthenticatedUser;
+    try {
+      const userData = localStorage.getItem(USER_KEY);
+      if (userData) {
+        return JSON.parse(userData) as AuthenticatedUser;
+      }
+    } catch {
+      localStorage.removeItem(USER_KEY);
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY); // <-- 7. Limpiar también aquí por seguridad
     }
-  } catch {
-    localStorage.removeItem(USER_KEY);
-    localStorage.removeItem(TOKEN_KEY);
+    return null;
   }
-  return null;
-}
 }
