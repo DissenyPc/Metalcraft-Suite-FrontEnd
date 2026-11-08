@@ -1,0 +1,173 @@
+<div class="dashboard animate-fade-in">
+  <!-- Stats Row -->
+  <div class="row g-3 mb-4">
+    <a routerLink="/budgets" class="col-lg-3 col-md-6 stat-widget card-interactive text-decoration-none">
+      <div class="stat-icon-wrapper" style="background: #e0f2fe; color: #0284c7;">
+        <i class="bi bi-receipt-cutoff"></i>
+      </div>
+      <div>
+        <div class="stat-value font-mono">{{ stats.budgets }}</div>
+        <div class="stat-label">Presupuestos</div>
+      </div>
+    </a>
+
+    <a routerLink="/profiles/aluminium" class="col-lg-3 col-md-6 stat-widget card-interactive text-decoration-none">
+      <div class="stat-icon-wrapper" style="background: #dbeafe; color: #2563eb;">
+        <i class="bi bi-layers-half"></i>
+      </div>
+      <div>
+        <div class="stat-value font-mono">{{ stats.aluminiumProfiles }}</div>
+        <div class="stat-label">Perfiles Aluminio</div>
+      </div>
+    </a>
+
+    <a routerLink="/profiles/iron" class="col-lg-3 col-md-6 stat-widget card-interactive text-decoration-none">
+      <div class="stat-icon-wrapper" style="background: #fef3c7; color: #d97706;">
+        <i class="bi bi-hammer"></i>
+      </div>
+      <div>
+        <div class="stat-value font-mono">{{ stats.ironProfiles }}</div>
+        <div class="stat-label">Perfiles Hierro</div>
+      </div>
+    </a>
+
+    <a routerLink="/clients" class="col-lg-3 col-md-6 stat-widget card-interactive text-decoration-none">
+      <div class="stat-icon-wrapper" style="background: #d1fae5; color: #059669;">
+        <i class="bi bi-people-fill"></i>
+      </div>
+      <div>
+        <div class="stat-value font-mono">{{ stats.clients }}</div>
+        <div class="stat-label">Clientes</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Second Stats Row -->
+  <div class="row g-3 mb-4">
+    <a routerLink="/inventory/hardware" class="col-lg-3 col-md-6 stat-widget card-interactive text-decoration-none"
+       [class.alert-stock]="lowStockItems.length > 0">
+      <div class="stat-icon-wrapper" style="background: #fee2e2; color: #dc2626;">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+      </div>
+      <div>
+        <div class="stat-value font-mono">{{ stats.hardware }}</div>
+        <div class="stat-label">Herrajes</div>
+      </div>
+    </a>
+
+    <a routerLink="/inventory/filling" class="col-lg-3 col-md-6 stat-widget card-interactive text-decoration-none">
+      <div class="stat-icon-wrapper" style="background: #fce7f3; color: #db2777;">
+        <i class="bi bi-window-stack"></i>
+      </div>
+      <div>
+        <div class="stat-value font-mono">{{ stats.fillingMaterials }}</div>
+        <div class="stat-label">Vidrios y Paneles</div>
+      </div>
+    </a>
+
+    <a routerLink="/hardware" class="col-lg-3 col-md-6 stat-widget card-interactive text-decoration-none"
+       [class.alert-stock]="lowStockItems.length > 0">
+      <div class="stat-icon-wrapper" style="background: #fee2e2; color: #dc2626;">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+      </div>
+      <div>
+        <div class="stat-value font-mono">{{ lowStockItems.length }}</div>
+        <div class="stat-label">Stock Bajo</div>
+      </div>
+    </a>
+
+    <a routerLink="/calculator/structure" class="col-lg-3 col-md-6 stat-widget card-interactive text-decoration-none">
+      <div class="stat-icon-wrapper" style="background: #ecfdf5; color: #10b981;">
+        <i class="bi bi-calculator-fill"></i>
+      </div>
+      <div>
+        <div class="stat-value" style="font-size: 1rem;">Abrir</div>
+        <div class="stat-label">Calculadora</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Recent Budgets Section -->
+  <div class="row g-3">
+    <div class="col-lg-8">
+      <div class="card-custom">
+        <div class="card-header-custom">
+          <h2 class="section-title"><i class="bi bi-receipt-cutoff me-2"></i>Presupuestos Recientes</h2>
+          <a routerLink="/budgets" class="btn btn-sm btn-secondary-custom" id="btn-view-all-budgets">Ver todos</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-modern" id="table-recent-budgets">
+            <thead>
+              <tr>
+                <th>Nº Presupuesto</th>
+                <th>Título</th>
+                <th>Cliente</th>
+                <th>Estado</th>
+                <th class="text-end">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (recentBudgets.length === 0) {
+                <tr>
+                  <td colspan="5" class="text-center text-muted py-4">
+                    <i class="bi bi-inbox" style="font-size: 1.5rem;"></i>
+                    <div class="mt-1">No hay presupuestos aún</div>
+                  </td>
+                </tr>
+              }
+              @for (budget of recentBudgets; track budget.id) {
+                <tr class="cursor-pointer" [routerLink]="['/budgets', budget.id]">
+                  <td><span class="font-mono fw-semibold">{{ budget.budgetNumber }}</span></td>
+                  <td>{{ budget.title }}</td>
+                  <td>{{ budget.clientNameSnapshot || budget.client?.name || '—' }}</td>
+                  <td>
+                    <span class="badge-pill-custom"
+                          [ngClass]="getStatusBadgeClass(budget.status)">
+                      {{ getStatusLabel(budget.status) }}
+                    </span>
+                  </td>
+                  <td class="text-end font-mono fw-semibold">{{ budget.total | number:'1.2-2' }} €</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Low Stock Alert -->
+    <div class="col-lg-4">
+      <div class="card-custom">
+        <div class="card-header-custom">
+          <h2 class="section-title"><i class="bi bi-exclamation-triangle me-2"></i>Alertas de Stock</h2>
+        </div>
+        <div class="stock-list">
+          @if (lowStockItems.length === 0) {
+            <div class="empty-state-sm">
+              <i class="bi bi-check-circle-fill text-success" style="font-size: 2rem;"></i>
+              <p class="text-muted mt-2 mb-0">Todo el stock en orden</p>
+            </div>
+          }
+          @for (item of lowStockItems.slice(0, 8); track item.id) {
+            <div class="stock-item">
+              <div class="stock-info">
+                <span class="stock-name">{{ item.name }}</span>
+                <span class="stock-ref text-muted">{{ item.reference }}</span>
+              </div>
+              <div class="stock-count">
+                <span class="badge-pill-custom badge-rejected">{{ item.stockQuantity }} uds</span>
+              </div>
+            </div>
+          }
+          @if (lowStockItems.length > 8) {
+            <div class="text-center py-2">
+              <a routerLink="/hardware" class="small text-primary">
+                Ver {{ lowStockItems.length - 8 }} más...
+              </a>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -189,7 +189,7 @@ export class SidebarComponent {
   isCollapsed = false;
 
   navItems: NavItem[] = [
-    { label: 'Dashboard', icon: 'bi-grid-1x2-fill', route: '/' },
+    { label: 'Panel de Control', icon: 'bi-grid-1x2-fill', route: '/' },
     { label: 'Presupuestos', icon: 'bi-receipt-cutoff', route: '/budgets' },
     { label: 'Productos Especiales', icon: 'bi-grid-3x3', route: '/special-products' },
     { label: 'Artículos de Reventa', icon: 'bi-cart-check-fill', route: '/resale-items' },

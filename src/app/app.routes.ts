@@ -51,8 +51,14 @@ export const routes: Routes = [
   { path: 'profiles', redirectTo: 'inventory', pathMatch: 'full' },
   { path: 'profiles/aluminium', redirectTo: 'inventory', pathMatch: 'full' },
   { path: 'profiles/iron', redirectTo: 'inventory', pathMatch: 'full' },
-  { path: 'hardware', redirectTo: 'inventory', pathMatch: 'full' },
-  { path: 'filling-materials', redirectTo: 'inventory', pathMatch: 'full' },
+  // { path: 'hardware', redirectTo: 'inventory', pathMatch: 'full' },
+  // { path: 'filling-materials', redirectTo: 'inventory', pathMatch: 'full' },
+{
+  path: 'inventory/:category',
+  component: InventoryDashboardComponent, // o InventoryComponent, según se llame tu componente
+  canActivate: [authGuard, roleGuard],
+  data: { roles: ['ADMIN'] }
+},
 
   // ── Catch-all ──
   { path: '**', redirectTo: '' }
