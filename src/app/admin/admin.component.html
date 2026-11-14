@@ -1,13 +1,23 @@
 <div class="admin-container">
-  <h2>User Management</h2>
+  <div class="admin-header">
+    <h2>Gestión de usuarios</h2>
+    <button class="add-user-button" (click)="openRegisterForm()">
+      <i class="bi bi-person-plus"></i> Añadir usuario
+    </button>
+  </div>
+
+  <div *ngIf="userCreatedMessage" class="user-created-message" role="status">
+    {{ userCreatedMessage }}
+  </div>
+
   <table>
     <thead>
       <tr>
-        <th>Username</th>
-        <th>Email</th>
-        <th>Role</th>
-        <th>Active</th>
-        <th>Actions</th>
+        <th>Usuario</th>
+        <th>Correo electrónico</th>
+        <th>Rol</th>
+        <th>Activo</th>
+        <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
@@ -15,12 +25,32 @@
         <td>{{ user.username }}</td>
         <td>{{ user.email }}</td>
         <td>{{ user.role }}</td>
-        <td>{{ user.active ? 'Yes' : 'No' }}</td>
+        <td>{{ user.active ? 'Sí' : 'No' }}</td>
         <td>
-          <button (click)="updateUserRole(user.id, 'ADMIN')">Make Admin</button>
-          <button (click)="updateUserRole(user.id, 'EMPLOYEE')">Make Employee</button>
+          <button (click)="updateUserRole(user.id, 'ADMIN')">Hacer administrador</button>
+          <button (click)="updateUserRole(user.id, 'EMPLOYEE')">Hacer empleado</button>
         </td>
       </tr>
     </tbody>
   </table>
+</div>
+
+<div *ngIf="showRegisterForm" class="register-modal-backdrop" (click)="showRegisterForm = false">
+  <section
+    class="register-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Añadir usuario"
+    (click)="$event.stopPropagation()"
+  >
+    <button
+      type="button"
+      class="close-register-button"
+      aria-label="Cerrar formulario"
+      (click)="showRegisterForm = false"
+    >
+      <i class="bi bi-x-lg"></i>
+    </button>
+    <app-register [adminMode]="true" (userRegistered)="onUserRegistered()"></app-register>
+  </section>
 </div>

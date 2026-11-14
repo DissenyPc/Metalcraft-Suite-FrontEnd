@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { map } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
 import { RegisterRequest } from '../../../models/user.model';
 
@@ -10,7 +11,7 @@ import { RegisterRequest } from '../../../models/user.model';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
-    <div class="auth-page">
+    <div class="auth-page" [class.admin-register]="adminMode">
       <div class="auth-container animate-fade-in">
         <!-- Brand Header -->
         <div class="auth-brand">
@@ -25,7 +26,7 @@ import { RegisterRequest } from '../../../models/user.model';
         <div class="auth-card">
           <div class="auth-card-header">
             <h2>Crear Cuenta</h2>
-            <p>Complete los datos para registrarse en el sistema</p>
+            <p>{{ adminMode ? 'Complete los datos para crear el usuario' : 'Complete los datos para registrarse en el sistema' }}</p>
           </div>
 
           <!-- Error Alert -->
@@ -173,9 +174,11 @@ import { RegisterRequest } from '../../../models/user.model';
             </button>
           </form>
 
-          <div class="auth-footer">
-            <p>¿Ya tiene cuenta? <a routerLink="/login" id="link-login">Iniciar Sesión</a></p>
-          </div>
+          @if (!adminMode) {
+            <div class="auth-footer">
+              <p>¿Ya tiene cuenta? <a routerLink="/login" id="link-login">Iniciar Sesión</a></p>
+            </div>
+          }
         </div>
       </div>
     </div>
@@ -190,6 +193,11 @@ import { RegisterRequest } from '../../../models/user.model';
       padding: 2rem;
       position: relative;
       overflow: hidden;
+    }
+    .auth-page.admin-register {
+      min-height: auto;
+      padding: 1.5rem;
+      border-radius: 16px;
     }
     .auth-page::before {
       content: '';
@@ -434,7 +442,10 @@ import { RegisterRequest } from '../../../models/user.model';
     }
   `]
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
+  @Input() adminMode = false;
+  @Output() userRegistered = new EventEmitter<void>();
+
   formData: RegisterRequest = { username: '', email: '', password: '' };
   confirmPassword = '';
   errorMessage = '';
@@ -446,8 +457,10 @@ export class RegisterComponent {
   constructor(
     private authService: AuthService,
     private router: Router
-  ) {
-    if (this.authService.isLoggedIn) {
+  ) {}
+
+  ngOnInit(): void {
+    if (this.authService.isLoggedIn && !this.adminMode) {
       this.router.navigate(['/']);
     }
   }
@@ -462,8 +475,17 @@ export class RegisterComponent {
     this.successMessage = '';
     this.isLoading = true;
 
-    this.authService.register(this.formData).subscribe({
+    const registration = this.adminMode
+      ? this.authService.registerForAdmin(this.formData).pipe(map(() => undefined))
+      : this.authService.register(this.formData).pipe(map(() => undefined));
+
+    registration.subscribe({
       next: () => {
+        if (this.adminMode) {
+          this.userRegistered.emit();
+          return;
+        }
+
         this.successMessage = 'Cuenta creada correctamente. Redirigiendo...';
         setTimeout(() => this.router.navigate(['/']), 1200);
       },

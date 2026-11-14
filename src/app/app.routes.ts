@@ -9,14 +9,12 @@ import { InventoryDashboardComponent } from './pages/inventory/inventory-dashboa
 import { ClientManagementComponent } from './pages/clients/client-management.component';
 import { AdminComponent } from './admin/admin.component';
 import { LoginComponent } from './pages/auth/login/login.component';
-import { RegisterComponent } from './pages/auth/register/register.component';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
 
 export const routes: Routes = [
   // ── Public Auth Routes ──
   { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
 
   // ── Protected Routes (require authentication) ──
   { path: '', component: DashboardComponent, pathMatch: 'full', canActivate: [authGuard] },

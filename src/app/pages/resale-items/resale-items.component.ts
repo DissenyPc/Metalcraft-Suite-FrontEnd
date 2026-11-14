@@ -9,8 +9,7 @@ import { Budget, BudgetItem } from '../../models/budget.model';
   selector: 'app-resale-items',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './resale-items.component.html',
-  styleUrls: ['./resale-items.component.css']
+  templateUrl: './resale-items.component.html'
 })
 export class ResaleItemsComponent implements OnInit {
   activeCategory: 'AWNINGS' | 'SHOWER_SCREENS' = 'AWNINGS';

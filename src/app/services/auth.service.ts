@@ -107,6 +107,13 @@ export class AuthService {
   }
 
   /**
+   * Registers a user without replacing the current administrator session.
+   */
+  registerForAdmin(request: RegisterRequest): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${API_CONFIG.baseUrl}/users`, request);
+  }
+
+  /**
    * Logs out the current user, clears storage, and redirects to login.
    */
   logout(): void {

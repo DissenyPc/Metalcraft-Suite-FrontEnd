@@ -2,16 +2,19 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../services/user.service';
 import { User } from '../models/user.model';
+import { RegisterComponent } from '../pages/auth/register/register.component';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RegisterComponent],
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.css']
 })
 export class AdminComponent implements OnInit {
   users: User[] = [];
+  showRegisterForm = false;
+  userCreatedMessage = '';
 
   constructor(private userService: UserService) {
     console.log('>>> AdminComponent: Constructor ejecutado');
@@ -39,5 +42,16 @@ export class AdminComponent implements OnInit {
     this.userService.updateUserRole(userId, newRole as 'ADMIN' | 'EMPLOYEE').subscribe(() => {
       this.loadUsers();
     });
+  }
+
+  openRegisterForm(): void {
+    this.userCreatedMessage = '';
+    this.showRegisterForm = true;
+  }
+
+  onUserRegistered(): void {
+    this.showRegisterForm = false;
+    this.userCreatedMessage = 'Usuario creado correctamente.';
+    this.loadUsers();
   }
 }
