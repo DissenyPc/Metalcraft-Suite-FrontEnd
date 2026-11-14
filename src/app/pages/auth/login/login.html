@@ -1,0 +1,116 @@
+<div class="auth-page">
+      <div class="auth-container animate-fade-in">
+        <!-- Brand Header -->
+        <div class="auth-brand">
+          <div class="brand-icon">
+            <i class="bi bi-tools"></i>
+          </div>
+          <h1 class="brand-title">Carpintería Metálica</h1>
+          <p class="brand-subtitle">& Cerrajería</p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="auth-card">
+          <div class="auth-card-header">
+            <h2>Iniciar Sesión</h2>
+            <p>Ingrese sus credenciales para acceder al sistema</p>
+          </div>
+
+          <!-- Error Alert -->
+          @if (errorMessage) {
+            <div class="auth-alert error" id="login-error">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              <span>{{ errorMessage }}</span>
+            </div>
+          }
+
+          <form (ngSubmit)="onLogin()" #loginForm="ngForm">
+            <div class="form-group">
+              <label for="username" class="form-label">
+                <i class="bi bi-person"></i> Usuario
+              </label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                class="form-input"
+                placeholder="Nombre de usuario"
+                [(ngModel)]="credentials.username"
+                required
+                minlength="3"
+                #usernameField="ngModel"
+                [class.invalid]="usernameField.invalid && usernameField.touched"
+                autocomplete="username"
+              />
+              @if (usernameField.invalid && usernameField.touched) {
+                <small class="field-error">El usuario es obligatorio (mín. 3 caracteres)</small>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="password" class="form-label">
+                <i class="bi bi-lock"></i> Contraseña
+              </label>
+              <div class="password-wrapper">
+                <input
+                  [type]="showPassword ? 'text' : 'password'"
+                  id="password"
+                  name="password"
+                  class="form-input"
+                  placeholder="Su contraseña"
+                  [(ngModel)]="credentials.password"
+                  required
+                  minlength="6"
+                  #passwordField="ngModel"
+                  [class.invalid]="passwordField.invalid && passwordField.touched"
+                  autocomplete="current-password"
+                />
+                <button
+                  type="button"
+                  class="password-toggle"
+                  (click)="showPassword = !showPassword"
+                  tabindex="-1"
+                >
+                  <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+                </button>
+              </div>
+              @if (passwordField.invalid && passwordField.touched) {
+                <small class="field-error">La contraseña es obligatoria (mín. 6 caracteres)</small>
+              }
+            </div>
+
+            <button
+              type="submit"
+              id="btn-login"
+              class="auth-btn"
+              [disabled]="loginForm.invalid || isLoading"
+            >
+              @if (isLoading) {
+                <span class="spinner"></span> Iniciando sesión...
+              } @else {
+                <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+              }
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <p>¿No tiene cuenta? <a routerLink="/register" id="link-register">Registrarse</a></p>
+          </div>
+        </div>
+
+        <!-- Demo Credentials -->
+        <div class="demo-info">
+          <p><i class="bi bi-info-circle"></i> Credenciales de prueba:</p>
+          <div class="demo-creds">
+            <button class="demo-btn" (click)="fillDemo('admin', 'admin123')">
+              <span class="demo-role admin">ADMIN</span>
+              admin / admin123
+            </button>
+            <button class="demo-btn" (click)="fillDemo('empleado', 'empleado123')">
+              <span class="demo-role employee">EMPLOYEE</span>
+              empleado / empleado123
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>

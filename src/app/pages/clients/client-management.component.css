@@ -1,0 +1,11 @@
+.fs-xs {
+  font-size: 0.75rem;
+}
+
+.actions-column {
+  width: 120px;
+}
+
+.client-modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}

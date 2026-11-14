@@ -1,0 +1,53 @@
+.fs-xs { font-size: 0.75rem; }
+    .min-vh-50 { min-height: 480px; }
+    .step-pill {
+      padding: 0.6rem 0.5rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      transition: all 0.2s ease;
+    }
+    .step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      color: #334155;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .step-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .step-active .step-pill {
+      background: #0284c7;
+      border-color: #0284c7;
+    }
+    .step-active .step-num {
+      background: #fff;
+      color: #0284c7;
+    }
+    .step-active .step-title {
+      color: #fff;
+    }
+    .step-done .step-pill {
+      background: #f0fdf4;
+      border-color: #86efac;
+    }
+    .step-done .step-num {
+      background: #22c55e;
+      color: #fff;
+    }
+    .step-done .step-title {
+      color: #15803d;
+    }

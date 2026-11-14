@@ -1,1 +1,18 @@
 <!-- Template is defined inline in app.component.ts -->
+<!-- Authenticated Layout: sidebar + header + content -->
+    @if (authService.isLoggedIn) {
+      <div class="app-layout">
+        <app-sidebar></app-sidebar>
+        <div class="main-wrapper">
+          <app-header>
+            <span pageTitle>Carpintería Metálica & Cerrajería</span>
+          </app-header>
+          <main class="content-area">
+            <router-outlet></router-outlet>
+          </main>
+        </div>
+      </div>
+    } @else {
+      <!-- Unauthenticated: render just the route (login/register pages) -->
+      <router-outlet></router-outlet>
+    }

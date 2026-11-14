@@ -12,15 +12,7 @@ import { Client } from '../../../models/client.model';
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './budget-list.component.html',
-  styles: [`
-    .fs-xs { font-size: 0.75rem; }
-    .badge-draft { background-color: #64748b; color: #fff; }
-    .badge-pending { background-color: #f59e0b; color: #fff; }
-    .badge-approved { background-color: #10b981; color: #fff; }
-    .badge-invoiced { background-color: #0284c7; color: #fff; }
-    .badge-rejected { background-color: #ef4444; color: #fff; }
-    .badge-cancelled { background-color: #94a3b8; color: #fff; }
-  `]
+  styleUrls: ['./budget-list.component.css']
 })
 export class BudgetListComponent implements OnInit {
   budgets: Budget[] = [];

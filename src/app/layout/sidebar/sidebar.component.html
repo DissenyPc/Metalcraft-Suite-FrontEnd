@@ -1,0 +1,40 @@
+<aside class="sidebar" [class.collapsed]="isCollapsed">
+      <!-- Brand Header -->
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <i class="bi bi-tools"></i>
+        </div>
+        <div class="brand-text" *ngIf="!isCollapsed">
+          <span class="brand-name">Carpintería</span>
+          <span class="brand-sub">Metálica & Cerrajería</span>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="sidebar-nav">
+        <ul class="nav-list">
+          @for (item of visibleNavItems; track item.route) {
+            <li class="nav-item">
+              <a [routerLink]="item.route"
+                 routerLinkActive="active"
+                 [routerLinkActiveOptions]="{exact: item.route === '/'}"
+                 class="nav-link"
+                 [title]="isCollapsed ? item.label : ''">
+                <i class="bi {{item.icon}}"></i>
+                <span class="nav-label" *ngIf="!isCollapsed">{{ item.label }}</span>
+                @if (item.adminOnly && !isCollapsed) {
+                  <span class="admin-badge">
+                    <i class="bi bi-shield-fill-check"></i>
+                  </span>
+                }
+              </a>
+            </li>
+          }
+        </ul>
+      </nav>
+
+      <!-- Collapse Toggle -->
+      <button class="sidebar-toggle" (click)="toggleSidebar()">
+        <i class="bi" [ngClass]="isCollapsed ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
+      </button>
+    </aside>
