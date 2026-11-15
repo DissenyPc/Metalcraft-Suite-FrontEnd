@@ -1,59 +1,47 @@
-# CarpinteriaFrontend
+# Carpintería Metálica — aplicación web
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.19.
+Frontend Angular 19 para gestionar presupuestos y operaciones habituales de un taller de carpintería metálica. Consume la API REST del directorio `API`.
 
-## Development server
+## Funcionalidades disponibles
 
-To start a local development server, run:
+- **Acceso de usuarios** mediante nombre de usuario y contraseña. Las rutas de trabajo requieren iniciar sesión; inventario, clientes y administración de usuarios están reservados al rol `ADMIN`.
+- **Panel de control** con resumen de presupuestos, inventario y agenda.
+- **Presupuestos**: listado y búsqueda, estados, clientes, partidas, descuentos y duplicación. El asistente técnico calcula despieces de estructura, persiana y acristalamiento y permite añadir el resultado como partida.
+- **Agenda**: creación y edición de citas, asignación de trabajadores, consulta y cambios de estado.
+- **Inventario y tarifas** (administración): consulta y búsqueda de perfiles de aluminio y hierro, herrajes y materiales de relleno; edición de precios y existencias, importación CSV y actualización porcentual masiva por catálogo.
+- **Productos especiales**: cálculo de rejas, barandillas y mosquiteras; sus resultados se pueden añadir a un presupuesto.
+- **Artículos de reventa**: cálculo orientativo de toldos y mamparas con margen e instalación, y opción de añadirlos a un presupuesto.
+- **Clientes y usuarios** (administración): mantenimiento de clientes, alta de usuarios y asignación de roles.
 
-```bash
-ng serve
-```
+## Alcance actual y límites
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- El panel de inicio muestra cifras generales y agenda, pero su lista de alertas de stock bajo no funciona actualmente: consulta `/api/hardware-accessories/low-stock`, ruta que la API no expone. En la pantalla de inventario sí se muestran avisos calculados para el stock de herrajes.
+- La opción «Todo el Inventario» del ajuste masivo no actualiza todos los catálogos: actualmente solo aplica el ajuste a perfiles de aluminio.
+- La aplicación prepara y gestiona presupuestos, pero no genera facturas fiscales ni ofrece contabilidad, cobros o pagos.
+- Las existencias se consultan y editan como cantidades; no hay movimientos de almacén, pedidos a proveedores ni trazabilidad de entradas y salidas.
+- No incluye portal público o de autoservicio para clientes.
+- Los precios que muestran los asistentes de fabricación, productos especiales y reventa son estimaciones calculadas en el frontend; no se obtienen de tarifas reales del inventario ni de un proveedor.
+- No se encontraron archivos de pruebas unitarias ni pruebas end-to-end. Aunque `npm test` está configurado con Karma, no hay una suite de pruebas implementada; `ng e2e` requiere añadir y configurar un framework externo.
 
-## Code scaffolding
+## Requisitos
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- Node.js y npm compatibles con Angular CLI 19.
+- La API arrancada en `http://localhost:8080` y una base de datos MySQL configurada para ella. La URL de la API está definida en `src/environments/environment.ts` y `src/environments/environment.prod.ts`.
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Desarrollo
 
 ```bash
-ng test
+npm install
+npm start
 ```
 
-## Running end-to-end tests
+Abre `http://localhost:4200`. El servidor de desarrollo recarga la aplicación al guardar cambios.
 
-For end-to-end (e2e) testing, run:
+## Compilación y pruebas
 
 ```bash
-ng e2e
+npm run build
+npm test
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+`npm run build` compila la aplicación. `npm test` lanza Karma; actualmente no hay pruebas unitarias implementadas.
