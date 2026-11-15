@@ -1,0 +1,261 @@
+<section class="agenda-list card-custom" aria-labelledby="agenda-list-title">
+  <div class="agenda-list__header">
+    <h2 class="section-title" id="agenda-list-title">
+      <i class="bi bi-list-task me-2" aria-hidden="true"></i>Agenda en lista
+    </h2>
+    <div class="agenda-list__tools">
+      <label class="agenda-list__search">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <input
+          type="search"
+          [(ngModel)]="searchTerm"
+          placeholder="Buscar en la agenda"
+          aria-label="Buscar por cualquier dato de la agenda">
+      </label>
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="openCreateForm()"
+        [disabled]="workersLoading || workersLoadError">
+        <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Crear tarea
+      </button>
+    </div>
+  </div>
+
+  @if (workersLoadError) {
+    <p class="agenda-list__message text-danger" role="alert">
+      No se pudieron cargar los trabajadores. No es posible crear o modificar tareas.
+    </p>
+  }
+
+  @if (editorOpen) {
+    <form class="agenda-editor" #agendaForm="ngForm" (ngSubmit)="saveAppointment()">
+      <div class="agenda-editor__heading">
+        <h3>{{ editingId === null ? 'Crear tarea' : 'Modificar tarea' }}</h3>
+        @if (saveError) {
+          <p class="text-danger mb-0" role="alert">{{ saveError }}</p>
+        }
+      </div>
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label" for="appointment-date">Fecha *</label>
+          <input
+            id="appointment-date"
+            class="form-control"
+            type="date"
+            name="date"
+            [(ngModel)]="form.date"
+            required>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label" for="appointment-time">Hora *</label>
+          <input
+            id="appointment-time"
+            class="form-control"
+            type="time"
+            name="time"
+            [(ngModel)]="form.time"
+            required>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label" for="appointment-status">Estado *</label>
+          <select
+            id="appointment-status"
+            class="form-select"
+            name="status"
+            [(ngModel)]="form.status"
+            required>
+            @for (status of statuses; track status.value) {
+              <option [ngValue]="status.value">{{ status.label }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label" for="appointment-workers">Trabajadores</label>
+          <select
+            id="appointment-workers"
+            class="form-select"
+            name="workerIds"
+            [(ngModel)]="form.workerIds"
+            multiple
+            size="3"
+            aria-describedby="appointment-workers-help">
+            @for (worker of workers; track worker.id) {
+              <option [ngValue]="worker.id">{{ worker.username }}</option>
+            }
+          </select>
+          <small id="appointment-workers-help" class="text-muted">
+            Puedes seleccionar varios trabajadores.
+          </small>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="appointment-client">Cliente *</label>
+          <input
+            id="appointment-client"
+            class="form-control"
+            type="text"
+            name="clientName"
+            [(ngModel)]="form.clientName"
+            maxlength="200"
+            required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="appointment-phone">Teléfono *</label>
+          <input
+            id="appointment-phone"
+            class="form-control"
+            type="tel"
+            name="clientPhone"
+            [(ngModel)]="form.clientPhone"
+            maxlength="50"
+            required>
+        </div>
+        <div class="col-12">
+          <label class="form-label" for="appointment-address">Dirección *</label>
+          <input
+            id="appointment-address"
+            class="form-control"
+            type="text"
+            name="address"
+            [(ngModel)]="form.address"
+            maxlength="255"
+            required>
+        </div>
+        <div class="col-12">
+          <label class="form-label" for="appointment-observations">Observaciones</label>
+          <textarea
+            id="appointment-observations"
+            class="form-control"
+            name="observations"
+            [(ngModel)]="form.observations"
+            rows="3"></textarea>
+        </div>
+      </div>
+      <div class="agenda-editor__actions">
+        <button type="button" class="btn btn-outline-secondary" (click)="closeForm()" [disabled]="saving">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="agendaForm.invalid || saving">
+          @if (saving) {
+            Guardando...
+          } @else {
+            Guardar tarea
+          }
+        </button>
+      </div>
+    </form>
+  }
+
+  @if (loading) {
+    <p class="agenda-list__message" role="status">Cargando agenda...</p>
+  } @else if (loadError) {
+    <p class="agenda-list__message text-danger" role="alert">No se pudo cargar la agenda.</p>
+  } @else {
+    <div class="agenda-list__table-wrapper">
+      <table class="agenda-list__table">
+        <colgroup>
+          <col class="column-id">
+          <col class="column-date">
+          <col class="column-time">
+          <col class="column-client">
+          <col class="column-phone">
+          <col class="column-address">
+          <col class="column-workers">
+          <col class="column-observations">
+          <col class="column-status">
+          <col class="column-created">
+          <col class="column-updated">
+          <col class="column-actions">
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col" [attr.aria-sort]="sortColumn === 'id' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'">
+              <button type="button" (click)="sortBy('id')">N.º{{ getSortIndicator('id') }}</button>
+            </th>
+            <th scope="col" [attr.aria-sort]="sortColumn === 'date' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'">
+              <button type="button" (click)="sortBy('date')">Fecha{{ getSortIndicator('date') }}</button>
+            </th>
+            <th scope="col" [attr.aria-sort]="sortColumn === 'time' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'">
+              <button type="button" (click)="sortBy('time')">Hora{{ getSortIndicator('time') }}</button>
+            </th>
+            <th scope="col" [attr.aria-sort]="sortColumn === 'clientName' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'">
+              <button type="button" (click)="sortBy('clientName')">Cliente{{ getSortIndicator('clientName') }}</button>
+            </th>
+            <th scope="col" [attr.aria-sort]="sortColumn === 'clientPhone' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'">
+              <button type="button" (click)="sortBy('clientPhone')">Teléfono{{ getSortIndicator('clientPhone') }}</button>
+            </th>
+            <th scope="col" [attr.aria-sort]="sortColumn === 'address' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'">
+              <button type="button" (click)="sortBy('address')">Dirección{{ getSortIndicator('address') }}</button>
+            </th>
+            <th scope="col" [attr.aria-sort]="sortColumn === 'workers' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'">
+              <button type="button" (click)="sortBy('workers')">Trabajadores{{ getSortIndicator('workers') }}</button>
+            </th>
+            <th scope="col" [attr.aria-sort]="sortColumn === 'observations' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'">
+              <button type="button" (click)="sortBy('observations')">Observaciones{{ getSortIndicator('observations') }}</button>
+            </th>
+            <th scope="col" [attr.aria-sort]="sortColumn === 'status' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'">
+              <button type="button" (click)="sortBy('status')">Estado{{ getSortIndicator('status') }}</button>
+            </th>
+            <th scope="col" [attr.aria-sort]="sortColumn === 'createdAt' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'">
+              <button type="button" (click)="sortBy('createdAt')">Creada{{ getSortIndicator('createdAt') }}</button>
+            </th>
+            <th scope="col" [attr.aria-sort]="sortColumn === 'updatedAt' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'">
+              <button type="button" (click)="sortBy('updatedAt')">Actualizada{{ getSortIndicator('updatedAt') }}</button>
+            </th>
+            <th scope="col"><span class="visually-hidden">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (visibleAppointments.length === 0) {
+            <tr>
+              <td colspan="12" class="agenda-list__message">
+                {{ searchTerm.trim() ? 'No hay resultados para la búsqueda.' : 'No hay tareas en la agenda.' }}
+              </td>
+            </tr>
+          }
+          @for (appointment of visibleAppointments; track appointment.id) {
+            <tr>
+              <td>{{ appointment.id }}</td>
+              <td>{{ appointment.date | date:'dd/MM/yyyy' }}</td>
+              <td>{{ appointment.time | slice:0:5 }}</td>
+              <td>{{ appointment.clientName }}</td>
+              <td>{{ appointment.clientPhone }}</td>
+              <td>{{ appointment.address }}</td>
+              <td>
+                @if (appointment.workers.length) {
+                  @for (worker of appointment.workers; track worker.id; let last = $last) {
+                    {{ worker.username }}{{ last ? '' : ', ' }}
+                  }
+                } @else {
+                  —
+                }
+              </td>
+              <td>{{ appointment.observations || '—' }}</td>
+              <td>
+                <span class="agenda-list__status" [ngClass]="'status-' + appointment.status">
+                  {{ getStatusLabel(appointment.status) }}
+                </span>
+              </td>
+              <td>{{ appointment.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ appointment.updatedAt ? (appointment.updatedAt | date:'dd/MM/yyyy HH:mm') : '—' }}</td>
+              <td>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary"
+                  (click)="openEditForm(appointment)"
+                  [disabled]="workersLoading || workersLoadError"
+                  [attr.aria-label]="'Modificar tarea ' + appointment.id">
+                  <i class="bi bi-pencil" aria-hidden="true"></i>
+                  <span class="visually-hidden">Modificar</span>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="agenda-list__count" aria-live="polite">
+      {{ visibleAppointments.length }} {{ visibleAppointments.length === 1 ? 'tarea' : 'tareas' }}
+    </p>
+  }
+</section>

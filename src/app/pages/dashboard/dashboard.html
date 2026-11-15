@@ -76,13 +76,13 @@
       </div>
     </a>
 
-    <a routerLink="/calculator/structure" class="col-lg-3 col-md-6 stat-widget card-interactive text-decoration-none">
+    <a routerLink="/special-products" class="col-lg-3 col-md-6 stat-widget card-interactive text-decoration-none">
       <div class="stat-icon-wrapper" style="background: #ecfdf5; color: #10b981;">
         <i class="bi bi-calculator-fill"></i>
       </div>
       <div>
         <div class="stat-value" style="font-size: 1rem;">Abrir</div>
-        <div class="stat-label">Calculadora</div>
+        <div class="stat-label">Calculadora de productos especiales</div>
       </div>
     </a>
   </div>
@@ -133,41 +133,51 @@
           </table>
         </div>
       </div>
+
     </div>
 
-    <!-- Low Stock Alert -->
+    <!-- Agenda -->
     <div class="col-lg-4">
-      <div class="card-custom">
+      <a routerLink="/agenda"
+         class="card-custom dashboard-agenda-link"
+         aria-label="Abrir la agenda en formato lista">
         <div class="card-header-custom">
-          <h2 class="section-title"><i class="bi bi-exclamation-triangle me-2"></i>Alertas de Stock</h2>
+          <h2 class="section-title"><i class="bi bi-calendar3 me-2"></i>Agenda</h2>
         </div>
-        <div class="stock-list">
-          @if (lowStockItems.length === 0) {
-            <div class="empty-state-sm">
-              <i class="bi bi-check-circle-fill text-success" style="font-size: 2rem;"></i>
-              <p class="text-muted mt-2 mb-0">Todo el stock en orden</p>
+        <div class="agenda-calendar">
+          <div class="calendar-month">{{ monthTitle }}</div>
+          @if (agendaLoadError) {
+            <p class="agenda-message text-danger" role="alert">No se pudo cargar la agenda.</p>
+          } @else {
+            <div class="calendar-grid" role="grid" [attr.aria-label]="'Agenda de ' + monthTitle">
+              @for (weekday of ['L', 'M', 'X', 'J', 'V', 'S', 'D']; track $index) {
+                <div class="calendar-weekday" role="columnheader">{{ weekday }}</div>
+              }
+              @for (calendarDay of calendarDays; track $index) {
+                @if (calendarDay.day === null) {
+                  <div class="calendar-day calendar-day--empty" role="gridcell"></div>
+                } @else {
+                  <div class="calendar-day"
+                       role="gridcell"
+                       [class.calendar-day--pending]="calendarDay.status === 'pending'"
+                       [class.calendar-day--overdue]="calendarDay.status === 'overdue'"
+                       [class.calendar-day--completed]="calendarDay.status === 'completed'"
+                       [attr.aria-label]="calendarDay.day + ' de ' + monthTitle +
+                         (calendarDay.status ? ', ' + calendarDay.taskCount + ' tareas, ' +
+                           getCalendarStatusLabel(calendarDay.status) : '')">
+                    {{ calendarDay.day }}
+                  </div>
+                }
+              }
             </div>
-          }
-          @for (item of lowStockItems.slice(0, 8); track item.id) {
-            <div class="stock-item">
-              <div class="stock-info">
-                <span class="stock-name">{{ item.name }}</span>
-                <span class="stock-ref text-muted">{{ item.reference }}</span>
-              </div>
-              <div class="stock-count">
-                <span class="badge-pill-custom badge-rejected">{{ item.stockQuantity }} uds</span>
-              </div>
-            </div>
-          }
-          @if (lowStockItems.length > 8) {
-            <div class="text-center py-2">
-              <a routerLink="/hardware" class="small text-primary">
-                Ver {{ lowStockItems.length - 8 }} más...
-              </a>
+            <div class="calendar-legend">
+              <span><i class="legend-dot legend-dot--pending"></i>Pendiente / pospuesta</span>
+              <span><i class="legend-dot legend-dot--overdue"></i>Atrasada</span>
+              <span><i class="legend-dot legend-dot--completed"></i>Realizada</span>
             </div>
           }
         </div>
-      </div>
+      </a>
     </div>
   </div>
 </div>

@@ -4,6 +4,7 @@ import { BudgetListComponent } from './pages/budget/budget-list/budget-list.comp
 import { BudgetEditorComponent } from './pages/budget/budget-editor/budget-editor.component';
 import { BudgetItemFormComponent } from './pages/budget/budget-item-form/budget-item-form.component';
 import { SpecialProductsComponent } from './pages/special-products/special-products.component';
+import { AppointmentAgendaComponent } from './pages/appointments/appointment-agenda.component';
 import { ResaleItemsComponent } from './pages/resale-items/resale-items.component';
 import { InventoryDashboardComponent } from './pages/inventory/inventory-dashboard.component';
 import { ClientManagementComponent } from './pages/clients/client-management.component';
@@ -23,6 +24,7 @@ export const routes: Routes = [
   { path: 'budgets/:id', component: BudgetEditorComponent, canActivate: [authGuard] },
   { path: 'budgets/:id/calculator', component: BudgetItemFormComponent, canActivate: [authGuard] },
   { path: 'special-products', component: SpecialProductsComponent, canActivate: [authGuard] },
+  { path: 'agenda', component: AppointmentAgendaComponent, canActivate: [authGuard] },
   { path: 'resale-items', component: ResaleItemsComponent, canActivate: [authGuard] },
 
   // ── ADMIN-only Routes ──

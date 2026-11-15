@@ -10,6 +10,16 @@ import { BudgetService } from '../../services/budget.service';
 import { ClientService } from '../../services/client.service';
 import { Budget } from '../../models/budget.model';
 import { HardwareAccessory } from '../../models/hardware-accessory.model';
+import { Appointment } from '../../models/appointment.model';
+import { AppointmentService } from '../../services/appointment.service';
+
+type CalendarDayStatus = 'pending' | 'overdue' | 'completed';
+
+interface CalendarDay {
+  day: number | null;
+  taskCount: number;
+  status: CalendarDayStatus | null;
+}
 
 @Component({
   selector: 'app-dashboard',
@@ -30,6 +40,9 @@ export class DashboardComponent implements OnInit {
 
   recentBudgets: Budget[] = [];
   lowStockItems: HardwareAccessory[] = [];
+  calendarDays: CalendarDay[] = [];
+  monthTitle = '';
+  agendaLoadError = false;
 
   constructor(
     private budgetService: BudgetService,
@@ -37,7 +50,8 @@ export class DashboardComponent implements OnInit {
     private ironService: IronProfileService,
     private hardwareService: HardwareAccessoryService,
     private fillingService: FillingMaterialService,
-    private clientService: ClientService
+    private clientService: ClientService,
+    private appointmentService: AppointmentService
   ) {}
 
   ngOnInit(): void {
@@ -52,7 +66,12 @@ export class DashboardComponent implements OnInit {
       hardware: this.hardwareService.getAll().pipe(catchError(() => of([]))),
       filling: this.fillingService.getAll().pipe(catchError(() => of([]))),
       clients: this.clientService.getAll().pipe(catchError(() => of([]))),
-      lowStock: this.hardwareService.getLowStock().pipe(catchError(() => of([])))
+      lowStock: this.hardwareService.getLowStock().pipe(catchError(() => of([]))),
+      appointments: this.appointmentService.getAll().pipe(catchError(error => {
+        this.agendaLoadError = true;
+        console.error('No se pudieron cargar las citas de la agenda.', error);
+        return of([]);
+      }))
     }).subscribe(data => {
       this.stats.budgets = data.budgets.length;
       this.stats.aluminiumProfiles = data.aluminium.length;
@@ -62,7 +81,83 @@ export class DashboardComponent implements OnInit {
       this.stats.clients = data.clients.length;
       this.recentBudgets = data.budgets.slice(0, 5);
       this.lowStockItems = data.lowStock;
+      this.buildCalendar(data.appointments);
     });
+  }
+
+  private buildCalendar(appointments: Appointment[]): void {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    this.monthTitle = now.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+
+    const appointmentsByDate = new Map<string, Appointment[]>();
+    for (const appointment of appointments) {
+      const [appointmentYear, appointmentMonth] = appointment.date.split('-').map(Number);
+      if (appointmentYear !== year || appointmentMonth !== month + 1) {
+        continue;
+      }
+
+      const dayAppointments = appointmentsByDate.get(appointment.date) ?? [];
+      dayAppointments.push(appointment);
+      appointmentsByDate.set(appointment.date, dayAppointments);
+    }
+
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7;
+    const totalCells = Math.ceil((firstWeekday + daysInMonth) / 7) * 7;
+    const todayKey = this.toDateKey(now);
+
+    this.calendarDays = Array.from({ length: totalCells }, (_, index) => {
+      const day = index - firstWeekday + 1;
+      if (day < 1 || day > daysInMonth) {
+        return { day: null, taskCount: 0, status: null };
+      }
+
+      const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const dayAppointments = appointmentsByDate.get(dateKey) ?? [];
+      return {
+        day,
+        taskCount: dayAppointments.length,
+        status: this.getDayStatus(dayAppointments, dateKey, todayKey)
+      };
+    });
+  }
+
+  private getDayStatus(
+    appointments: Appointment[],
+    dateKey: string,
+    todayKey: string
+  ): CalendarDayStatus | null {
+    if (appointments.some(appointment =>
+      appointment.status === 'atrasada' ||
+      (dateKey < todayKey && appointment.status !== 'realizada')
+    )) {
+      return 'overdue';
+    }
+
+    if (appointments.some(appointment =>
+      appointment.status === 'pendiente' || appointment.status === 'pospuesta'
+    )) {
+      return 'pending';
+    }
+
+    return appointments.length > 0 && appointments.every(appointment => appointment.status === 'realizada')
+      ? 'completed'
+      : null;
+  }
+
+  private toDateKey(date: Date): string {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  }
+
+  getCalendarStatusLabel(status: CalendarDayStatus): string {
+    const labels: Record<CalendarDayStatus, string> = {
+      pending: 'pendiente',
+      overdue: 'atrasada',
+      completed: 'realizada'
+    };
+    return labels[status];
   }
 
   getStatusBadgeClass(status: string): string {

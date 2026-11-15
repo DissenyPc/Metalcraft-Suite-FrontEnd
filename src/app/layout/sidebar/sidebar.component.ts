@@ -24,6 +24,7 @@ export class SidebarComponent {
   navItems: NavItem[] = [
     { label: 'Panel de Control', icon: 'bi-grid-1x2-fill', route: '/' },
     { label: 'Presupuestos', icon: 'bi-receipt-cutoff', route: '/budgets' },
+    { label: 'Agenda', icon: 'bi-list-task', route: '/agenda' },
     { label: 'Productos Especiales', icon: 'bi-grid-3x3', route: '/special-products' },
     { label: 'Artículos de Reventa', icon: 'bi-cart-check-fill', route: '/resale-items' },
     { label: 'Inventario y Tarifas', icon: 'bi-boxes', route: '/inventory', adminOnly: true },
